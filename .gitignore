@@ -9,5 +9,6 @@ build/
 .env
 golden*.json
 report*.html
+!assets/report_shell.html
 *.wav
 !tests/data/*.wav
