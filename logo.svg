@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Dark Background -->
+    <rect id="bg" width="512" height="512" fill="#0F1115" rx="64"/>
+    
+    <!-- Neon Glow Filter -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur1" />
+      <feGaussianBlur stdDeviation="24" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <linearGradient id="spectrumGradient" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#00FF9D" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#00FF9D" stop-opacity="1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <use href="#bg" />
+
+  <!-- Shield Outline -->
+  <path d="M 256, 40 C 256, 40 400, 80 400, 200 C 400, 360 256, 460 256, 460 C 256, 460 112, 360 112, 200 C 112, 80 256, 40 256, 40 Z" 
+        fill="none" stroke="#2A303A" stroke-width="12" stroke-linejoin="round"/>
+
+  <!-- Waveform / Spectrum Bars inside Shield -->
+  <g filter="url(#neonGlow)">
+    <rect x="170" y="240" width="16" height="80" rx="8" fill="url(#spectrumGradient)" />
+    <rect x="210" y="200" width="16" height="120" rx="8" fill="url(#spectrumGradient)" />
+    <rect x="250" y="140" width="16" height="180" rx="8" fill="url(#spectrumGradient)" />
+    
+    <!-- Checkmark part of the waveform -->
+    <path d="M 280, 260 L 310, 290 L 360, 180" fill="none" stroke="#00FF9D" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
