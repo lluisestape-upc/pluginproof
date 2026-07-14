@@ -1,0 +1,29 @@
+[project]
+name = "pluginproof"
+version = "0.1.0"
+description = "Regression testing for audio plugins - catch audio bugs before your users do"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pedalboard",
+    "typer",
+    "matplotlib",
+    "openai",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+pluginproof = "pluginproof.cli:app"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["pluginproof*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
