@@ -90,18 +90,34 @@ Assets: (1) logo + wordmark + palette, (2) report dashboard front-end, (3) demo-
 
 ---
 
-## 4. Timeline (Jul 14 → Jul 21)
+## 4. Timeline (Jul 14 → Jul 21) — revised Jul 14 after Fable/Antigravity round
+
+Status Jul 14: engine + CLI + report + brand DONE locally (81 tests green, E2E bug-catch works).
+Remaining core is built **in Codex** (GUI app + real-VST3 hardening + CI) → that's the Session ID.
 
 | Day | Date | Focus |
 |---|---|---|
-| 1 | Mon Jul 14 | Lock architecture, write data contract, scaffold repo. Dispatch Fable agents (specs+scaffold+tests). Antigravity starts brand + report shell. |
-| 2 | Tue Jul 15 | Core build **in Codex**: measurements + host on top of Fable scaffolds. First end-to-end on `biquad` fixture. |
-| 3 | Wed Jul 16 | Baseline/diff + report wired. GPT-5.6 diagnosis in. Green E2E on fixture. |
-| — | **Wed Jul 16** | **← request Codex credits well before Fri 12PM PT cutoff** |
-| 4 | Thu Jul 17 | Run on a REAL VST3 (your ESP plugin). Fix real-world breakage. Antigravity assets integrated. |
-| 5 | Fri Jul 18 | The "inject-a-bug" demo scenario (break oversampling → tool catches it). Polish report visuals. |
-| 6 | Sat Jul 19 | Record <3min demo video. README with Codex-usage highlights. Devpost copy. Grab `/feedback` Session ID. |
+| 1 | Mon Jul 14 | ✅ Engine/CLI/report/brand built + integrated. **Request Codex credits TODAY.** |
+| 2 | Tue Jul 15 | **Codex session starts.** Build the desktop GUI app (see §8): pywebview window, drag-and-drop VST3, Set Golden / Check buttons, embedded report. |
+| 3 | Wed Jul 16 | Codex: run on the REAL ESP .vst3, fix real-world breakage (param handling, stereo, samplerates). Start PyInstaller packaging (.exe). |
+| — | **Fri Jul 17 12PM PT** | **← hard cutoff for Codex credits (should already be done Day 1)** |
+| 4 | Thu Jul 17 | Codex: finish .exe packaging; GitHub Action (`pluginproof check` on PR). Antigravity prompts 3–4 (video assets + banner). |
+| 5 | Fri Jul 18 | Inject-a-bug demo dry run (GUI catch + CI catch). Polish. Freeze features. |
+| 6 | Sat Jul 19 | Record <3min video. README with Codex-usage highlights. Devpost copy. Grab `/feedback` Session ID. |
 | 7 | Sun–Mon Jul 20–21 | Buffer + **submit early**. Deadline Mon Jul 21 5PM PT. |
+
+## 8. Desktop GUI app (build in Codex — this is core)
+
+A normal windowed desktop app, not a website. Thin shell over the existing engine:
+
+- **pywebview** native window (Python, same process as the engine — zero duplication).
+- Drop zone: drag a `.vst3` in → runs the suite with a progress state.
+- Two actions: **Set Golden** (save baseline for this plugin) / **Check** (diff vs golden).
+- Result view = the existing branded HTML report rendered inside the window.
+- Golden baselines stored per-plugin under `%APPDATA%/PluginProof/`.
+- Package with **PyInstaller** → single `PluginProof.exe` (also satisfies the Devpost
+  "plugin/dev tool must be testable without rebuilding" rule — judges download the exe).
+- CLI stays first-class for the CI story; the GUI imports the same `run_suite`/`diff`.
 
 ---
 
