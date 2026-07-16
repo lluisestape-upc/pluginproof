@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import os
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +43,9 @@ class PluginProofApi:
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
+        # Pedalboard VST3 instances retain thread affinity.  A single shared worker
+        # keeps initial measurement and later fresh checks on the same thread.
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="PluginProof")
         self._state: dict[str, Any] = {
             "phase": "idle", "message": "Drop a .vst3 file to begin.",
             "plugin": None, "report_url": None,
@@ -67,6 +71,18 @@ class PluginProofApi:
             return {"ok": False, "cancelled": True}
         return self.start_measurement(selected[0])
 
+    def on_drop(self, event) -> None:
+        """Receive pywebview's DOM drop event, including its injected file path."""
+        try:
+            files = event["dataTransfer"]["files"]
+            path = files[0]["pywebviewFullPath"]
+        except (IndexError, KeyError, TypeError):
+            self._set_error("Could not read the dropped file. Please use Choose VST3 instead.")
+            return
+        result = self.start_measurement(path)
+        if not result["ok"]:
+            self._set_error(result.get("error", "Could not start measurement."))
+
     def start_measurement(self, plugin_path: str) -> dict[str, Any]:
         path = Path(plugin_path).expanduser()
         if path.suffix.lower() != ".vst3":
@@ -80,7 +96,7 @@ class PluginProofApi:
                            "plugin": str(path), "report_url": None}
             self._run = None
             self._plugin_path = path
-        threading.Thread(target=self._measure, args=(path,), daemon=True).start()
+        self._executor.submit(self._measure, path)
         return {"ok": True}
 
     def _measure(self, path: Path) -> None:
@@ -112,15 +128,26 @@ class PluginProofApi:
         return {"ok": True, "baseline": str(destination)}
 
     def check(self) -> dict[str, Any]:
-        run, path, error = self._ready_run()
+        _, path, error = self._ready_run()
         if error:
             return {"ok": False, "error": error}
         golden = baseline_path(path)
         if not golden.exists():
             return {"ok": False, "error": "No golden baseline yet. Choose Set Golden first."}
+        with self._lock:
+            if self._state["phase"] == "measuring":
+                return {"ok": False, "error": "A measurement is already running."}
+            self._state.update(phase="measuring", report_url=None,
+                               message="Re-measuring plugin for regression check...")
+        self._executor.submit(self._check, path, golden)
+        return {"ok": True}
+
+    def _check(self, path: Path, golden: Path) -> None:
+        """Run a fresh measurement, then compare it with the saved golden snapshot."""
         try:
             baseline = load_baseline(golden)
-            verdict = diff(baseline, run)
+            current = run_suite(PedalboardHost(path), SAMPLE_RATE)
+            verdict = diff(baseline, current)
             try:
                 verdict.diagnosis = diagnose(
                     verdict,
@@ -134,14 +161,15 @@ class PluginProofApi:
                 else "AI diagnosis"
             )
             report = app_data_dir() / "reports" / f"{golden.stem}-report.html"
-            render_report(run, verdict, report, baseline_run=baseline)
+            render_report(current, verdict, report, baseline_run=baseline)
         except Exception as exc:
-            return {"ok": False, "error": f"Could not create report: {exc}"}
+            self._set_error(f"Check failed: {exc}")
+            return
         with self._lock:
+            self._run = current
             self._state.update(phase="report", message=(f"Check complete: {verdict.overall.value.upper()} "
                                                          f"({diagnosis_source})."),
                                report_url=report.resolve().as_uri())
-        return {"ok": True, "status": verdict.overall.value}
 
     def new_check(self) -> dict[str, Any]:
         """Return from the report to the launcher without discarding this run."""
@@ -163,6 +191,10 @@ class PluginProofApi:
                 return None, None, "Drop a plugin and wait for measurement to finish first."
             return self._run, self._plugin_path, None
 
+    def _set_error(self, message: str) -> None:
+        with self._lock:
+            self._state.update(phase="error", message=message, report_url=None)
+
 
 def main() -> None:
     try:
@@ -171,9 +203,19 @@ def main() -> None:
         raise SystemExit("PluginProof GUI requires pywebview. Install with: pip install pywebview") from exc
     if not _GUI_PAGE.exists():
         raise SystemExit(f"GUI page not found: {_GUI_PAGE}")
-    window = webview.create_window(APP_NAME, _GUI_PAGE.as_uri(), js_api=PluginProofApi(),
+    api = PluginProofApi()
+    window = webview.create_window(APP_NAME, _GUI_PAGE.as_uri(), js_api=api,
                                    width=1180, height=820, min_size=(760, 580))
-    webview.start()
+
+    def bind_dom(gui_window) -> None:
+        try:
+            gui_window.dom.get_element("#drop-zone").events.drop += api.on_drop
+        except Exception:
+            # The file picker remains fully functional if the DOM bridge cannot start.
+            pass
+
+    window.events.closed += lambda: api._executor.shutdown(wait=False, cancel_futures=True)
+    webview.start(bind_dom, window)
 
 
 if __name__ == "__main__":

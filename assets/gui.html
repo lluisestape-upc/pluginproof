@@ -4,19 +4,18 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PluginProof</title>
   <style>
-    :root { color-scheme: dark; --bg:#0F1115; --panel:#1A1D24; --edge:#2A303A; --accent:#00FF9D; --muted:#8A99A8; --fail:#FF3366; font-family:Inter,system-ui,sans-serif; }
+    :root { color-scheme: dark; --bg:#0F1115; --panel:#1A1D24; --edge:#2A303A; --accent:#00FF9D; --muted:#8A99A8; font-family:Inter,system-ui,sans-serif; }
     *{box-sizing:border-box} body{margin:0;min-height:100vh;background:var(--bg);color:#E0E6ED;display:grid;place-items:center;padding:28px;background-image:linear-gradient(#2A303A33 1px,transparent 1px),linear-gradient(90deg,#2A303A33 1px,transparent 1px);background-size:20px 20px}
     main{width:min(920px,100%)} h1{font-size:28px;margin:0 0 6px} p{color:var(--muted);margin:0}.mono{font-family:'JetBrains Mono',Consolas,monospace}.brand{color:var(--accent)}
     #drop-zone{margin-top:28px;padding:58px 24px;text-align:center;border:2px dashed var(--edge);border-radius:14px;background:var(--panel);transition:.18s}#drop-zone.drag{border-color:var(--accent);box-shadow:0 0 25px #00ff9d22}#drop-zone.busy{opacity:.72}
     button{margin-top:20px;border:1px solid var(--accent);border-radius:6px;padding:10px 16px;background:var(--accent);color:#0F1115;font-weight:700;cursor:pointer}button.secondary{background:transparent;color:var(--accent);margin-left:10px}button:disabled{opacity:.4;cursor:not-allowed}
     #status{min-height:24px;margin-top:18px;color:var(--muted)}.spinner{display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid var(--muted);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    #report{display:none;width:100%;height:calc(100vh - 110px);border:1px solid var(--edge);border-radius:10px;background:var(--bg);margin-top:18px}.hidden{display:none!important}
-    #report-view{width:100%}#new-check{margin:0 0 10px}
+    #report{display:none;width:100%;height:calc(100vh - 110px);border:1px solid var(--edge);border-radius:10px;background:var(--bg);margin-top:18px}.hidden{display:none!important}#report-view{width:100%}#new-check{margin:0 0 10px}
   </style>
 </head>
 <body><main>
   <section id="launcher"><h1>Plugin<span class="brand">Proof</span></h1><p>Regression testing for audio plugins.</p>
-    <div id="drop-zone"><strong>Drop a <span class="brand mono">.vst3</span> plugin here</strong><p class="mono" style="margin-top:8px">PluginProof runs the complete measurement suite locally.</p><button id="browse">Choose VST3…</button></div>
+    <div id="drop-zone"><strong>Drop a <span class="brand mono">.vst3</span> plugin here</strong><p class="mono" style="margin-top:8px">PluginProof runs the complete measurement suite locally.</p><button id="browse">Choose VST3...</button></div>
     <div id="status" role="status">Drop a .vst3 file to begin.</div>
     <div id="actions" class="hidden"><button id="golden">Set Golden</button><button id="check" class="secondary">Check</button></div>
   </section>
@@ -26,13 +25,14 @@
 const api=()=>window.pywebview.api, zone=document.querySelector('#drop-zone'), status=document.querySelector('#status'), actions=document.querySelector('#actions'), report=document.querySelector('#report'), launcher=document.querySelector('#launcher'), reportView=document.querySelector('#report-view');
 let polling;
 function message(text,busy=false){status.innerHTML=(busy?'<span class="spinner"></span>':'')+text;zone.classList.toggle('busy',busy)}
-function result(r){if(!r.ok&&!r.cancelled) message(r.error||'Something went wrong.');return r}
-async function begin(path){const r=result(await api().start_measurement(path));if(r.ok){message('Starting measurement…',true);actions.classList.add('hidden');poll()}}
-async function poll(){clearInterval(polling);polling=setInterval(async()=>{const s=await api().state();message(s.message,s.phase==='measuring');if(s.phase==='ready'){clearInterval(polling);actions.classList.remove('hidden')}if(s.phase==='error')clearInterval(polling);if(s.phase==='report'){clearInterval(polling);showReport(s.report_url)}},450)}
-function showReport(url){report.src=url;launcher.classList.add('hidden');reportView.classList.remove('hidden');report.style.display='block'}
-document.querySelector('#browse').onclick=async()=>{const r=result(await api().pick_plugin());if(r.ok){message('Starting measurement…',true);actions.classList.add('hidden');poll()}};
+function result(r){if(!r.ok&&!r.cancelled)message(r.error||'Something went wrong.');return r}
+async function begin(path){const r=result(await api().start_measurement(path));if(r.ok){message('Starting measurement...',true);actions.classList.add('hidden')}}
+function poll(){if(polling)return;polling=setInterval(async()=>{const s=await api().state();message(s.message,s.phase==='measuring');actions.classList.toggle('hidden',s.phase!=='ready');if(s.phase==='report'&&s.report_url)showReport(s.report_url)},450)}
+function showReport(url){if(report.src!==url)report.src=url;launcher.classList.add('hidden');reportView.classList.remove('hidden');report.style.display='block'}
+document.querySelector('#browse').onclick=async()=>{const r=result(await api().pick_plugin());if(r.ok){message('Starting measurement...',true);actions.classList.add('hidden')}};
 document.querySelector('#golden').onclick=async()=>{const r=result(await api().set_golden());if(r.ok)message('Golden baseline saved. You can now run Check.')};
-document.querySelector('#check').onclick=async()=>{const r=result(await api().check());if(r.ok)poll()};
+document.querySelector('#check').onclick=async()=>{const r=result(await api().check());if(r.ok){message('Re-measuring plugin for regression check...',true);actions.classList.add('hidden')}};
 document.querySelector('#new-check').onclick=async()=>{const r=result(await api().new_check());if(r.ok){report.removeAttribute('src');report.style.display='none';reportView.classList.add('hidden');launcher.classList.remove('hidden');const s=await api().state();message(s.message);actions.classList.toggle('hidden',s.phase!=='ready')}};
-['dragenter','dragover'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.add('drag')}));['dragleave','drop'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.remove('drag')}));zone.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(!f){message('No file was dropped.');return}const path=f.pywebviewFullPath||f.path;if(!path){message('Could not read the dropped file path. Please use Choose VST3… instead.');return}begin(path)});
+['dragenter','dragover'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.add('drag')}));['dragleave','drop'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.remove('drag')}));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag')});
+window.addEventListener('pywebviewready',poll);
 </script></body></html>

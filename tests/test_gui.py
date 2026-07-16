@@ -13,6 +13,13 @@ def make_run() -> RunResult:
     )
 
 
+class ImmediateExecutor:
+    """Run asynchronous GUI workers immediately in unit tests."""
+
+    def submit(self, target, *args):
+        target(*args)
+
+
 def test_baseline_path_is_per_plugin_and_stable(monkeypatch, tmp_path):
     monkeypatch.setattr(gui, "app_data_dir", lambda: tmp_path)
     first = gui.baseline_path(tmp_path / "one" / "Plugin.vst3")
@@ -28,7 +35,13 @@ def test_set_golden_and_check_render_report(monkeypatch, tmp_path):
     api = gui.PluginProofApi()
     monkeypatch.setattr(gui, "app_data_dir", lambda: tmp_path)
     monkeypatch.setattr(gui, "PedalboardHost", lambda path: path)
-    monkeypatch.setattr(gui, "run_suite", lambda host, sr: make_run())
+    runs = iter([
+        make_run(),
+        RunResult("MegaCrusher.vst3", 48000, [Metric("freq_response_dev", 1.0, "dB")]),
+    ])
+    monkeypatch.setattr(gui, "run_suite", lambda host, sr: next(runs))
+    api._executor.shutdown(wait=False, cancel_futures=True)
+    api._executor = ImmediateExecutor()
     monkeypatch.setattr(gui, "diagnose", lambda verdict, context: "AI diagnosis")
 
     # Exercise the worker body synchronously; start_measurement itself is asynchronous.
@@ -38,9 +51,10 @@ def test_set_golden_and_check_render_report(monkeypatch, tmp_path):
 
     assert saved["ok"] is True
     assert Path(saved["baseline"]).exists()
-    assert checked == {"ok": True, "status": "pass"}
+    assert checked == {"ok": True}
     assert api.state()["report_url"].startswith("file:")
     assert "AI diagnosis" in api.state()["message"]
+    assert "FAIL" in api.state()["message"]
 
     assert api.new_check() == {"ok": True}
     assert api.state()["phase"] == "ready"
