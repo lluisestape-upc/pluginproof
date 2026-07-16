@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PluginProof Devpost banner 1200x630</title>
+<style>
+  :root{
+    --room:#101214; --chassis:#1B1F22; --chassis-hi:#2A3034; --chassis-lo:#0C0E10;
+    --glass:#070B08; --phos:#3EF29B; --phos-dim:#1F8A58; --engrave:#9AA6A0;
+    --engrave-dim:#5C666B; --fail:#FF4757;
+    --mono:'Cascadia Code',Consolas,monospace; --label:'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1200px;height:630px;overflow:hidden;background:var(--room);font-family:var(--label)}
+  .unit{position:absolute;inset:26px;border-radius:12px;
+    background:linear-gradient(180deg,var(--chassis-hi) 0%,var(--chassis) 6%,var(--chassis) 94%,var(--chassis-lo) 100%);
+    box-shadow:0 24px 60px rgba(0,0,0,.65),0 2px 0 rgba(255,255,255,.05) inset;
+    padding:30px 44px}
+  .screw{position:absolute;width:15px;height:15px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#3a4146,#14171a 70%);
+    box-shadow:0 1px 1px rgba(255,255,255,.06),0 0 3px rgba(0,0,0,.8) inset}
+  .screw::after{content:'';position:absolute;left:2.5px;right:2.5px;top:6.5px;height:1.6px;
+    background:#0a0c0d;transform:rotate(38deg)}
+  .tl{top:12px;left:14px}.tr{top:12px;right:14px}.bl{bottom:12px;left:14px}.br{bottom:12px;right:14px}
+
+  .plate{display:flex;align-items:center;gap:18px;padding-bottom:16px;
+    border-bottom:1px solid #14171a;box-shadow:0 1px 0 rgba(255,255,255,.05)}
+  .logo{width:52px;height:52px}
+  .word{font-size:38px;font-weight:700;letter-spacing:.01em;color:#C7D2D6;text-shadow:0 1px 0 rgba(0,0,0,.9)}
+  .word b{color:var(--phos)}
+  .model{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--engrave-dim);
+    letter-spacing:.14em;text-align:right;line-height:1.7}
+  .pwr{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--phos);
+    box-shadow:0 0 8px var(--phos);margin-right:8px}
+  .tag{margin-top:16px;font-size:21px;color:var(--engrave);letter-spacing:.01em}
+  .tag b{color:#C7D2D6;font-weight:600}
+
+  .bezel{margin-top:20px;border-radius:10px;padding:12px;
+    background:linear-gradient(180deg,#0e1113,#181c1f);
+    box-shadow:0 1px 0 rgba(255,255,255,.05),0 3px 12px rgba(0,0,0,.55) inset}
+  .crt{position:relative;border-radius:6px;height:300px;overflow:hidden;
+    background:radial-gradient(120% 140% at 50% 10%,#0b120c 0%,var(--glass) 60%);
+    box-shadow:0 0 26px rgba(0,0,0,.9) inset}
+  .crt::before{content:'';position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)}
+  .crt::after{content:'';position:absolute;inset:0;
+    background:radial-gradient(90% 75% at 50% 45%,transparent 55%,rgba(0,0,0,.5) 100%)}
+  svg{position:absolute;inset:0;width:100%;height:100%}
+  .crt .head{position:absolute;top:14px;left:20px;right:20px;display:flex;justify-content:space-between;
+    font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--phos-dim);z-index:2;text-transform:uppercase}
+  .verdict{position:absolute;right:20px;bottom:16px;z-index:2;font-family:var(--mono);font-weight:700;
+    font-size:15px;letter-spacing:.22em;color:var(--fail);text-shadow:0 0 10px rgba(255,71,87,.7)}
+  .verdict::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;
+    background:var(--fail);box-shadow:0 0 10px var(--fail);margin-right:10px}
+  .spike-label{position:absolute;z-index:2;font-family:var(--mono);font-size:13px;letter-spacing:.06em;
+    color:var(--fail);text-shadow:0 0 8px rgba(255,71,87,.6);right:150px;top:52px;text-align:right}
+  .base-label{position:absolute;z-index:2;font-family:var(--mono);font-size:12px;color:var(--engrave-dim);
+    left:22px;bottom:44px}
+  .credit{margin-top:16px;display:flex;justify-content:space-between;align-items:baseline;
+    font-family:var(--mono);font-size:13px;letter-spacing:.12em;color:var(--engrave-dim)}
+  .credit .ai{color:var(--engrave)}
+</style>
+</head>
+<body>
+<div class="unit">
+  <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+  <div class="plate">
+    <svg class="logo" style="position:static" viewBox="0 0 512 512">
+      <rect width="512" height="512" fill="#0F1115" rx="64"/>
+      <path d="M 256, 40 C 256, 40 400, 80 400, 200 C 400, 360 256, 460 256, 460 C 256, 460 112, 360 112, 200 C 112, 80 256, 40 256, 40 Z" fill="none" stroke="#2A303A" stroke-width="12" stroke-linejoin="round"/>
+      <rect x="170" y="240" width="16" height="80" rx="8" fill="#00FF9D"/>
+      <rect x="210" y="200" width="16" height="120" rx="8" fill="#00FF9D"/>
+      <rect x="250" y="140" width="16" height="180" rx="8" fill="#00FF9D"/>
+      <path d="M 280, 260 L 310, 290 L 360, 180" fill="none" stroke="#00FF9D" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="word">Plugin<b>Proof</b></span>
+    <span class="model"><span class="pwr"></span>AUDIO REGRESSION ANALYZER<br>MODEL PP-01</span>
+  </div>
+  <div class="tag"><b>Regression testing for audio plugins.</b> &nbsp;Golden-signal baselines, spectral diffs, AI diagnosis — catch audio bugs before your users do.</div>
+
+  <div class="bezel"><div class="crt">
+    <div class="head"><span>DUT: MegaCrusher.vst3 · check vs golden</span><span>48.0 kHz</span></div>
+    <svg viewBox="0 0 1040 300" preserveAspectRatio="none">
+      <!-- graticule -->
+      <g stroke="rgba(62,242,155,.07)" stroke-width="1">
+        <line x1="0" y1="60" x2="1040" y2="60"/><line x1="0" y1="110" x2="1040" y2="110"/>
+        <line x1="0" y1="160" x2="1040" y2="160"/><line x1="0" y1="210" x2="1040" y2="210"/>
+        <line x1="104" y1="0" x2="104" y2="300"/><line x1="208" y1="0" x2="208" y2="300"/>
+        <line x1="312" y1="0" x2="312" y2="300"/><line x1="416" y1="0" x2="416" y2="300"/>
+        <line x1="520" y1="0" x2="520" y2="300"/><line x1="624" y1="0" x2="624" y2="300"/>
+        <line x1="728" y1="0" x2="728" y2="300"/><line x1="832" y1="0" x2="832" y2="300"/>
+        <line x1="936" y1="0" x2="936" y2="300"/>
+      </g>
+      <!-- baseline: dashed, calm noise floor with fundamental peak -->
+      <path d="M0,238 L120,236 L200,239 L280,235 L340,238 L392,120 L404,52 L416,120 L470,236 L560,238 L640,236 L720,239 L800,237 L880,239 L960,237 L1040,239"
+            fill="none" stroke="#5C666B" stroke-width="2" stroke-dasharray="7 6" opacity=".8"/>
+      <!-- current: follows baseline, then aliasing forest in HF -->
+      <path d="M0,236 L120,234 L200,237 L280,233 L340,236 L392,118 L404,50 L416,118 L470,234 L540,236
+               L600,232 L640,200 L656,120 L664,208 L688,150 L700,222 L724,96 L736,214 L760,128 L772,218
+               L796,88 L808,206 L832,140 L844,216 L868,74 L880,200 L904,150 L916,212 L940,108 L952,208 L976,166 L1000,214 L1040,212"
+            fill="none" stroke="#3EF29B" stroke-width="2.5"
+            style="filter:drop-shadow(0 0 5px rgba(62,242,155,.6))"/>
+      <!-- red overlay on the aliasing region -->
+      <path d="M640,200 L656,120 L664,208 L688,150 L700,222 L724,96 L736,214 L760,128 L772,218
+               L796,88 L808,206 L832,140 L844,216 L868,74 L880,200 L904,150 L916,212 L940,108 L952,208"
+            fill="none" stroke="#FF4757" stroke-width="2.5" opacity=".9"
+            style="filter:drop-shadow(0 0 7px rgba(255,71,87,.7))"/>
+    </svg>
+    <div class="spike-label">ALIASING Δ +78.5 dB</div>
+    <div class="base-label">--- golden baseline</div>
+    <div class="verdict">FAIL</div>
+  </div></div>
+
+  <div class="credit">
+    <span>github.com/lluisestape-upc/pluginproof</span>
+    <span class="ai">BUILT WITH CODEX · GPT-5.6</span>
+  </div>
+</div>
+</body>
+</html>
