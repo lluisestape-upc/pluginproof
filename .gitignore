@@ -8,6 +8,7 @@ build/
 *.egg-info/
 .env
 golden*.json
+!ci/golden-biquad.json
 report*.html
 !assets/report_shell.html
 *.wav

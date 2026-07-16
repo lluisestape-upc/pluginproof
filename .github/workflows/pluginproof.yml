@@ -1,0 +1,25 @@
+name: PluginProof regression check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  fixture-regression:
+    name: Fixture audio regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install PluginProof
+        run: pip install -e .
+
+      - name: Check golden audio baseline
+        run: pluginproof check fixture:biquad --baseline ci/golden-biquad.json --no-diagnose
