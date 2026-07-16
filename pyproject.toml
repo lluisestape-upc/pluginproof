@@ -10,6 +10,7 @@ dependencies = [
     "typer",
     "matplotlib",
     "openai",
+    "pywebview",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PluginProof Video Assets</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-deep: #0F1115;
+            --bg-surface: #1A1D24;
+            --border-color: #2A303A;
+            --accent: #00FF9D;
+            --fail: #FF3366;
+            --text-primary: #E0E6ED;
+            --text-secondary: #8A99A8;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dark Grid Background */
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(42, 48, 58, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 48, 58, 0.4) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 1;
+        }
+
+        .scene {
+            display: none;
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+        }
+
+        /* ------------------------------------------------------------- */
+        /* (a) Intro Scene */
+        #intro {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-spectrum {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            height: 300px;
+            margin-bottom: 2rem;
+            position: absolute;
+            bottom: 50%;
+            transform: translateY(50%);
+            opacity: 0;
+            animation: fadeInSpectrum 0.5s ease-out forwards;
+        }
+
+        .bar {
+            width: 20px;
+            background: var(--accent);
+            border-radius: 4px;
+            box-shadow: 0 0 15px var(--accent);
+            animation: bounce 1s infinite alternate ease-in-out;
+            transform-origin: bottom;
+        }
+
+        @keyframes bounce {
+            0% { transform: scaleY(0.2); }
+            100% { transform: scaleY(1); }
+        }
+        @keyframes fadeInSpectrum {
+            to { opacity: 0.3; }
+        }
+
+        .intro-logo {
+            width: 200px;
+            height: 200px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: revealLogo 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        .intro-text-container {
+            text-align: center;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: revealText 1s ease-out 1.2s forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        .intro-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -1px;
+            text-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .intro-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-top: 1rem;
+        }
+
+        @keyframes revealLogo {
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes revealText {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ------------------------------------------------------------- */
+        /* (b) Lower Third Scene */
+        #lower-third {
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding: 40px 60px;
+        }
+
+        .lt-container {
+            background: rgba(26, 29, 36, 0.9);
+            border: 1px solid var(--border-color);
+            border-left: 6px solid var(--accent);
+            border-radius: 8px;
+            padding: 20px 40px 20px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 157, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lt-logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .lt-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lt-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .lt-title {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* (c) Bug Caught Transition */
+        #bug-caught {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .strobe-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--fail);
+            opacity: 0;
+            animation: strobe 0.5s ease-out 3;
+            z-index: 1;
+        }
+
+        .bc-box {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 51, 102, 0.1);
+            border: 4px solid var(--fail);
+            padding: 40px 80px;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(255, 51, 102, 0.5);
+            text-align: center;
+            transform: scale(0.5);
+            opacity: 0;
+            animation: zoomInBug 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .bc-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            fill: var(--fail);
+            filter: drop-shadow(0 0 10px var(--fail));
+        }
+
+        .bc-text {
+            font-family: var(--font-mono);
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--fail);
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px var(--fail);
+        }
+
+        @keyframes strobe {
+            0% { opacity: 0; }
+            50% { opacity: 0.2; }
+            100% { opacity: 0; }
+        }
+        @keyframes zoomInBug {
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ------------------------------------------------------------- */
+        /* (d) Outro Card */
+        #outro {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .outro-spectrum {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to top, rgba(0,255,157,0.1), transparent);
+            z-index: 1;
+        }
+
+        .outro-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .outro-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+        }
+
+        .outro-text {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .outro-repo {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--accent);
+            background: var(--bg-surface);
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* ------------------------------------------------------------- */
+        /* (e) YouTube Thumbnail */
+        #thumbnail {
+            flex-direction: row;
+            padding: 60px;
+            gap: 60px;
+            background: radial-gradient(circle at center, #1A1D24 0%, #0F1115 100%);
+        }
+
+        .thumb-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .thumb-title {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        }
+
+        .thumb-title span {
+            color: var(--accent);
+        }
+
+        .thumb-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 40px;
+        }
+
+        .thumb-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .thumb-graph {
+            width: 100%;
+            height: 400px;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        
+        .thumb-graph::before {
+             content: '';
+             position: absolute;
+             top: 0; left: 0; right: 0; bottom: 0;
+             background-image: 
+                 linear-gradient(rgba(0, 255, 157, 0.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(0, 255, 157, 0.05) 1px, transparent 1px);
+             background-size: 40px 40px;
+        }
+
+        .graph-line-good {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            border-top: 4px solid var(--accent);
+            background: linear-gradient(to bottom, rgba(0,255,157,0.2), transparent);
+        }
+
+        .graph-spike {
+            position: absolute;
+            bottom: 50px;
+            right: 150px;
+            width: 4px;
+            height: 250px;
+            background: var(--fail);
+            box-shadow: 0 0 30px var(--fail);
+        }
+        .graph-spike::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -10px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--fail);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <!-- SVG Definitions -->
+    <svg style="display:none;" viewBox="0 0 512 512" id="svg-logo">
+        <rect width="512" height="512" fill="#0F1115" rx="64"/>
+        <path d="M 256, 40 C 256, 40 400, 80 400, 200 C 400, 360 256, 460 256, 460 C 256, 460 112, 360 112, 200 C 112, 80 256, 40 256, 40 Z" fill="none" stroke="#2A303A" stroke-width="12" stroke-linejoin="round"/>
+        <rect x="170" y="240" width="16" height="80" rx="8" fill="#00FF9D" />
+        <rect x="210" y="200" width="16" height="120" rx="8" fill="#00FF9D" />
+        <rect x="250" y="140" width="16" height="180" rx="8" fill="#00FF9D" />
+        <path d="M 280, 260 L 310, 290 L 360, 180" fill="none" stroke="#00FF9D" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+
+    <!-- (a) Intro Scene -->
+    <div id="intro" class="scene">
+        <div class="intro-spectrum" id="spectrum"></div>
+        <svg class="intro-logo"><use href="#svg-logo" /></svg>
+        <div class="intro-text-container">
+            <h1 class="intro-title">PluginProof</h1>
+            <div class="intro-subtitle">Regression testing for audio plugins</div>
+        </div>
+    </div>
+
+    <!-- (b) Lower Third Scene -->
+    <div id="lower-third" class="scene">
+        <div class="lt-container">
+            <svg class="lt-logo"><use href="#svg-logo" /></svg>
+            <div class="lt-text">
+                <span class="lt-name">Lluis</span>
+                <span class="lt-title">Audio DSP Engineer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- (c) Bug Caught Transition -->
+    <div id="bug-caught" class="scene">
+        <div class="strobe-bg"></div>
+        <div class="bc-box">
+            <svg class="bc-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <div class="bc-text">BUG CAUGHT</div>
+        </div>
+    </div>
+
+    <!-- (d) Outro Card -->
+    <div id="outro" class="scene">
+        <div class="outro-spectrum"></div>
+        <div class="outro-content">
+            <svg class="outro-logo"><use href="#svg-logo" /></svg>
+            <div class="outro-text">Built with Codex + GPT-5.6</div>
+            <div class="outro-repo">github.com/lluis/pluginproof</div>
+        </div>
+    </div>
+
+    <!-- (e) YouTube Thumbnail -->
+    <div id="thumbnail" class="scene">
+        <div class="thumb-left">
+            <svg class="thumb-logo"><use href="#svg-logo" /></svg>
+            <h1 class="thumb-title">Catch audio bugs <span>before</span> your users do</h1>
+        </div>
+        <div class="thumb-right">
+            <div class="thumb-graph">
+                <div class="graph-line-good"></div>
+                <div class="graph-spike"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate spectrum bars for intro
+        const spectrum = document.getElementById('spectrum');
+        for(let i=0; i<30; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = (Math.random() * 200 + 50) + 'px';
+            bar.style.animationDelay = (Math.random() * 0.5) + 's';
+            bar.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+            spectrum.appendChild(bar);
+        }
+
+        // Routing logic based on hash
+        function showScene() {
+            document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+            const hash = window.location.hash || '#intro';
+            const scene = document.querySelector(hash);
+            if(scene) {
+                scene.style.display = 'flex';
+                // Trigger reflow to restart animations
+                scene.classList.remove('active');
+                void scene.offsetWidth; 
+                scene.classList.add('active');
+            }
+        }
+
+        window.addEventListener('hashchange', showScene);
+        showScene();
+    </script>
+</body>
+</html>
