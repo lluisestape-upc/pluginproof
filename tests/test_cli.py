@@ -183,6 +183,25 @@ class TestCheckCommand:
         assert result.exit_code == 2, result.output
         assert "FAIL" in result.output
 
+    def test_provider_flag_overrides_diagnosis_config(self, mocked_pipeline, tmp_path, monkeypatch):
+        golden = write_golden(tmp_path)
+        mocked_pipeline["run"] = make_run({"aliasing_score": -60.0})
+        import pluginproof.diagnose as diagnosis_module
+
+        captured = {}
+
+        def fake_diagnose(verdict, context, provider=None):
+            captured["provider"] = provider
+            return "[llama3.2 (local)] mock diagnosis"
+
+        monkeypatch.setattr(diagnosis_module, "diagnose", fake_diagnose)
+        result = runner.invoke(
+            cli.app,
+            ["check", "fixture:biquad", "--baseline", str(golden), "--provider", "ollama"],
+        )
+        assert result.exit_code == 2, result.output
+        assert captured["provider"] == "ollama"
+
 
 # ---------------------------------------------------------------------------
 # host resolution (unmocked resolve_host, unknown spec)

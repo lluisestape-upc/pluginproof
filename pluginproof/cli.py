@@ -159,6 +159,7 @@ def check(
     report: Optional[Path] = typer.Option(None, "--report", help="Write an HTML report here."),
     samplerate: int = typer.Option(48000, "--samplerate", help="Samplerate for the test suite."),
     diagnose: bool = typer.Option(True, "--diagnose/--no-diagnose", help="Run the GPT diagnosis on non-PASS verdicts."),
+    provider: Optional[str] = typer.Option(None, "--provider", help="Diagnosis provider override: openai, anthropic, ollama, or off."),
     wav_in: Optional[Path] = typer.Option(None, "--wav-in", help="Input WAV for WavFileHost."),
     wav_out: Optional[Path] = typer.Option(None, "--wav-out", help="Output WAV for WavFileHost."),
 ):
@@ -184,6 +185,7 @@ def check(
             verdict.diagnosis = run_diagnose(
                 verdict,
                 {"plugin": plugin, "samplerate": samplerate},
+                provider=provider,
             )
         except ImportError:
             console.print("[dim]diagnose module not ready yet - skipping diagnosis[/dim]")

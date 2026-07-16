@@ -11,10 +11,12 @@
     button{margin-top:20px;border:1px solid var(--accent);border-radius:6px;padding:10px 16px;background:var(--accent);color:#0F1115;font-weight:700;cursor:pointer}button.secondary{background:transparent;color:var(--accent);margin-left:10px}button:disabled{opacity:.4;cursor:not-allowed}
     #status{min-height:24px;margin-top:18px;color:var(--muted)}.spinner{display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid var(--muted);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
     #report{display:none;width:100%;height:calc(100vh - 110px);border:1px solid var(--edge);border-radius:10px;background:var(--bg);margin-top:18px}.hidden{display:none!important}#report-view{width:100%}#new-check{margin:0 0 10px}
+    #settings-toggle{float:right;margin:0;background:transparent;color:var(--accent);font-size:18px;padding:6px 10px}#settings{margin-top:18px;padding:16px;background:var(--panel);border:1px solid var(--edge);border-radius:10px}#settings label{display:block;color:var(--muted);font-size:12px;margin-top:10px}#settings input,#settings select{width:100%;margin-top:4px;padding:8px;background:var(--bg);color:#E0E6ED;border:1px solid var(--edge);border-radius:5px}#settings button{margin-top:14px}.settings-note{font-size:12px;margin-top:8px}
   </style>
 </head>
 <body><main>
-  <section id="launcher"><h1>Plugin<span class="brand">Proof</span></h1><p>Regression testing for audio plugins.</p>
+  <section id="launcher"><button id="settings-toggle" title="AI settings" aria-label="AI settings">&#9881;</button><h1>Plugin<span class="brand">Proof</span></h1><p>Regression testing for audio plugins.</p>
+    <section id="settings" class="hidden"><strong>AI diagnosis settings</strong><label>Provider<select id="provider"><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="ollama">Ollama (local)</option><option value="off">Off (rule-based)</option></select></label><label>API key<input id="api-key" type="password" autocomplete="off"></label><label>Model<input id="model" type="text"></label><button id="save-settings">Save</button><p id="settings-status" class="settings-note"></p></section>
     <div id="drop-zone"><strong>Drop a <span class="brand mono">.vst3</span> plugin here</strong><p class="mono" style="margin-top:8px">PluginProof runs the complete measurement suite locally.</p><button id="browse">Choose VST3...</button></div>
     <div id="status" role="status">Drop a .vst3 file to begin.</div>
     <div id="actions" class="hidden"><button id="golden">Set Golden</button><button id="check" class="secondary">Check</button></div>
@@ -23,6 +25,7 @@
 </main>
 <script>
 const api=()=>window.pywebview.api, zone=document.querySelector('#drop-zone'), status=document.querySelector('#status'), actions=document.querySelector('#actions'), report=document.querySelector('#report'), launcher=document.querySelector('#launcher'), reportView=document.querySelector('#report-view');
+const provider=document.querySelector('#provider'), apiKey=document.querySelector('#api-key'), model=document.querySelector('#model'), settings=document.querySelector('#settings'), settingsStatus=document.querySelector('#settings-status');
 let polling;
 function message(text,busy=false){status.innerHTML=(busy?'<span class="spinner"></span>':'')+text;zone.classList.toggle('busy',busy)}
 function result(r){if(!r.ok&&!r.cancelled)message(r.error||'Something went wrong.');return r}
@@ -33,6 +36,10 @@ document.querySelector('#browse').onclick=async()=>{const r=result(await api().p
 document.querySelector('#golden').onclick=async()=>{const r=result(await api().set_golden());if(r.ok)message('Golden baseline saved. You can now run Check.')};
 document.querySelector('#check').onclick=async()=>{const r=result(await api().check());if(r.ok){message('Re-measuring plugin for regression check...',true);actions.classList.add('hidden')}};
 document.querySelector('#new-check').onclick=async()=>{const r=result(await api().new_check());if(r.ok){report.removeAttribute('src');report.style.display='none';reportView.classList.add('hidden');launcher.classList.remove('hidden');const s=await api().state();message(s.message);actions.classList.toggle('hidden',s.phase!=='ready')}};
+const defaultModels={openai:'gpt-5.6',anthropic:'claude-opus-4-8',ollama:'llama3.2',off:''};
+document.querySelector('#settings-toggle').onclick=()=>settings.classList.toggle('hidden');
+provider.onchange=()=>{model.value=defaultModels[provider.value];apiKey.disabled=provider.value==='ollama'||provider.value==='off'};
+document.querySelector('#save-settings').onclick=async()=>{const r=await api().save_settings({provider:provider.value,api_key:apiKey.value,model:model.value});settingsStatus.textContent=r.ok?'Settings saved.':r.error||'Could not save settings.'};
 ['dragenter','dragover'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.add('drag')}));['dragleave','drop'].forEach(e=>zone.addEventListener(e,x=>{x.preventDefault();zone.classList.remove('drag')}));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag')});
-window.addEventListener('pywebviewready',poll);
+window.addEventListener('pywebviewready',async()=>{poll();const s=await api().settings();provider.value=s.provider;apiKey.value=s.api_key;model.value=s.model;apiKey.disabled=s.provider==='ollama'||s.provider==='off'});
 </script></body></html>

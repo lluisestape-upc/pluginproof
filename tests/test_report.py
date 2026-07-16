@@ -7,12 +7,15 @@ from __future__ import annotations
 
 import base64
 import re
+import sys
+import types
 
 import numpy as np
 import pytest
 
 from pluginproof.contract import DiffResult, Metric, RunResult, Spectrum, Status, Verdict
-from pluginproof.diagnose import FALLBACK_MARKER, diagnose
+from pluginproof.diagnose import FALLBACK_MARKER, diagnose, load_settings, save_settings
+import pluginproof.diagnose as diagnosis_module
 from pluginproof.report import render_report
 
 PLUGIN_NAME = "FixtureComp.vst3"
@@ -103,6 +106,7 @@ class TestRenderReport:
 
         # Diagnosis panel text
         assert "check your oversampling stage" in html_text
+        assert "AI Diagnosis &mdash; rule-based" in html_text
 
         # Metric names appear on cards
         for name in ("thd_n", "aliasing_score", "freq_response_dev", "nan_denormal"):
@@ -186,7 +190,7 @@ class TestDiagnose:
 
         result = diagnose(verdict, context, client=client)
 
-        assert result == "Aliasing regression detected; inspect the oversampler."
+        assert result == "[GPT-5.6] Aliasing regression detected; inspect the oversampler."
 
         kwargs = client.responses.last_kwargs
         assert kwargs is not None
@@ -221,3 +225,35 @@ class TestDiagnose:
     def test_never_crashes_on_empty_response(self, verdict):
         result = diagnose(verdict, {"plugin": PLUGIN_NAME}, client=_FakeClient("   "))
         assert result.startswith(FALLBACK_MARKER)
+
+    def test_config_round_trip_and_validation(self, tmp_path):
+        path = tmp_path / "config.json"
+        saved = save_settings(
+            {"provider": "anthropic", "api_key": "secret", "model": "custom-claude"}, path
+        )
+        assert saved == load_settings(path)
+        with pytest.raises(ValueError, match="API key"):
+            save_settings({"provider": "openai", "api_key": ""}, path)
+
+    @pytest.mark.parametrize(
+        ("provider", "env_name", "env_key", "expected"),
+        [
+            ("openai", "OPENAI_API_KEY", "open-key", {"api_key": "open-key"}),
+            ("anthropic", "ANTHROPIC_API_KEY", "anth-key", {"api_key": "anth-key", "base_url": diagnosis_module.ANTHROPIC_BASE_URL}),
+            ("ollama", None, None, {"api_key": "ollama", "base_url": diagnosis_module.OLLAMA_BASE_URL}),
+        ],
+    )
+    def test_provider_client_wiring(self, monkeypatch, provider, env_name, env_key, expected):
+        captured = {}
+
+        class OpenAI:
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+
+        monkeypatch.setitem(sys.modules, "openai", types.SimpleNamespace(OpenAI=OpenAI))
+        monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        if env_name:
+            monkeypatch.setenv(env_name, env_key)
+        diagnosis_module._make_client(provider, "")
+        assert captured == expected

@@ -43,6 +43,7 @@ matplotlib.use("Agg")  # headless; must precede pyplot import
 import matplotlib.pyplot as plt
 
 from pluginproof.contract import DiffResult, RunResult, Spectrum, Status, Verdict
+from pluginproof.diagnose import diagnosis_engine
 
 _ASSETS_SHELL = Path(__file__).resolve().parent.parent / "assets" / "report_shell.html"
 
@@ -78,6 +79,7 @@ def render_report(
         "diagnosis": html.escape(
             verdict.diagnosis or "No diagnosis available for this run."
         ).replace("\n", "<br>"),
+        "diagnosis_engine": html.escape(diagnosis_engine(verdict)),
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -288,7 +290,7 @@ _BUILTIN_TEMPLATE = """<!DOCTYPE html>
 {{spectra}}
   </div>
 
-  <h2>Diagnosis</h2>
+  <h2>AI Diagnosis &mdash; {{diagnosis_engine}}</h2>
   <div class="diagnosis">{{diagnosis}}</div>
 
   <footer class="stamp">generated {{timestamp}} &middot; pluginproof</footer>

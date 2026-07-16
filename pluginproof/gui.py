@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from pluginproof.baseline import diff, load_baseline, run_suite, save_baseline
-from pluginproof.diagnose import FALLBACK_MARKER, diagnose
+from pluginproof.diagnose import FALLBACK_MARKER, diagnose, load_settings, save_settings
 from pluginproof.host import PedalboardHost
 from pluginproof.report import render_report
 
@@ -56,6 +56,18 @@ class PluginProofApi:
     def state(self) -> dict[str, Any]:
         with self._lock:
             return dict(self._state)
+
+    def settings(self) -> dict[str, str]:
+        """Return persisted BYOK settings for the small settings panel."""
+        return load_settings()
+
+    def save_settings(self, settings: dict) -> dict[str, Any]:
+        try:
+            return {"ok": True, "settings": save_settings(settings)}
+        except (TypeError, ValueError) as exc:
+            return {"ok": False, "error": str(exc)}
+        except OSError as exc:
+            return {"ok": False, "error": f"Could not save settings: {exc}"}
 
     def pick_plugin(self) -> dict[str, Any]:
         """Show the native file chooser.  Called only from the UI thread."""
