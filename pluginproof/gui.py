@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -20,7 +21,15 @@ from pluginproof.report import render_report
 
 APP_NAME = "PluginProof"
 SAMPLE_RATE = 48_000
-_GUI_PAGE = Path(__file__).resolve().parent.parent / "assets" / "gui.html"
+
+
+def _resource_path(*parts: str) -> Path:
+    """Find bundled data under PyInstaller, or project data during development."""
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
+    return base.joinpath(*parts)
+
+
+_GUI_PAGE = _resource_path("assets", "gui.html")
 
 
 def app_data_dir() -> Path:

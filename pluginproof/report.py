@@ -34,6 +34,7 @@ from __future__ import annotations
 import base64
 import html
 import io
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -45,7 +46,15 @@ import matplotlib.pyplot as plt
 from pluginproof.contract import DiffResult, RunResult, Spectrum, Status, Verdict
 from pluginproof.diagnose import diagnosis_engine
 
-_ASSETS_SHELL = Path(__file__).resolve().parent.parent / "assets" / "report_shell.html"
+
+
+def _resource_path(*parts: str) -> Path:
+    """Find bundled data under PyInstaller, or project data during development."""
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
+    return base.joinpath(*parts)
+
+
+_ASSETS_SHELL = _resource_path("assets", "report_shell.html")
 
 _STATUS_COLOR = {
     Status.PASS: "#2ee6a8",
