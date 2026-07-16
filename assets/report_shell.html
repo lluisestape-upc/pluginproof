@@ -7,290 +7,208 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
+        /* Bench-instrument report: same chassis/CRT world as the app. */
         :root {
-            --bg-deep: #0F1115;
-            --bg-surface: #1A1D24;
-            --bg-surface-hover: #21252D;
-            --border-color: #2A303A;
-            --accent: #00FF9D;
-            --accent-glow: rgba(0, 255, 157, 0.2);
-            --pass: #00FF9D;
-            --warn: #FFB300;
-            --fail: #FF3366;
-            --text-primary: #E0E6ED;
-            --text-secondary: #8A99A8;
-            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+            --room: #101214;
+            --chassis: #1B1F22;
+            --chassis-hi: #2A3034;
+            --chassis-lo: #0C0E10;
+            --glass: #070B08;
+            --phos: #3EF29B;
+            --phos-dim: #1F8A58;
+            --engrave: #9AA6A0;
+            --engrave-dim: #5C666B;
+            --pass: #2ee6a8;   /* matches report.py _STATUS_COLOR */
+            --warn: #ffb454;
+            --fail: #ff5470;
+            --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+            --font-label: 'Inter', 'Segoe UI', system-ui, sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--bg-deep);
-            color: var(--text-primary);
-            font-family: var(--font-sans);
+            background: var(--room);
+            color: var(--engrave);
+            font-family: var(--font-label);
             line-height: 1.6;
-            padding: 2rem;
+            padding: 1.6rem;
             min-height: 100vh;
-            background-image:
-                linear-gradient(rgba(42, 48, 58, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(42, 48, 58, 0.3) 1px, transparent 1px);
-            background-size: 20px 20px;
         }
 
+        /* chassis */
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
+            position: relative;
+            border-radius: 10px;
+            background: linear-gradient(180deg, var(--chassis-hi) 0%, var(--chassis) 7%,
+                                        var(--chassis) 93%, var(--chassis-lo) 100%);
+            box-shadow: 0 22px 50px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.04) inset;
+            padding: 18px 26px 24px;
         }
+        .container::before, .container::after {
+            content: ''; position: absolute; width: 13px; height: 13px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #3a4146, #14171a 70%);
+            box-shadow: 0 1px 1px rgba(255,255,255,.06), 0 0 3px rgba(0,0,0,.8) inset;
+        }
+        .container::before { top: 10px; left: 12px; }
+        .container::after  { top: 10px; right: 12px; }
 
-        /* Header */
+        /* nameplate */
         header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--bg-surface);
-            padding: 1.5rem 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            padding: 2px 4px 12px;
+            border-bottom: 1px solid #14171a;
+            box-shadow: 0 1px 0 rgba(255,255,255,.05);
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo svg {
-            width: 40px;
-            height: 40px;
-        }
-
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo svg { width: 30px; height: 30px; }
         .wordmark {
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: -0.5px;
-            color: var(--text-primary);
+            font-weight: 700; font-size: 16px; letter-spacing: .02em; color: #C7D2D6;
+            text-shadow: 0 1px 0 rgba(0,0,0,.9);
         }
-
+        .wordmark b { color: var(--phos); }
         .plugin-name {
-            font-family: var(--font-mono);
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            padding-left: 1.5rem;
-            border-left: 2px solid var(--border-color);
+            font-family: var(--font-mono); font-size: 12px; color: var(--engrave-dim);
+            letter-spacing: .08em;
         }
-
         .verdict-badge {
-            font-family: var(--font-mono);
-            font-weight: 700;
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px currentColor;
+            margin-left: auto;
+            font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+            letter-spacing: .2em; text-transform: uppercase;
+            padding: 7px 18px; border-radius: 4px;
+            background: var(--glass);
+            box-shadow: 0 2px 8px rgba(0,0,0,.6) inset;
         }
+        .verdict-badge::before {
+            content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+            margin-right: 10px; vertical-align: 0;
+            background: currentColor; box-shadow: 0 0 9px currentColor;
+        }
+        .badge-pass { color: var(--pass); }
+        .badge-warn { color: var(--warn); }
+        .badge-fail { color: var(--fail); }
 
-        .badge-pass { color: var(--bg-deep); background-color: var(--pass); }
-        .badge-warn { color: var(--bg-deep); background-color: var(--warn); }
-        .badge-fail { color: var(--bg-deep); background-color: var(--fail); }
-
-        /* Section headings */
+        /* engraved section labels */
         h2.section {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.25em;
-            color: var(--text-secondary);
-            margin: 2rem 0 0.9rem;
             font-family: var(--font-mono);
+            font-size: .68rem; text-transform: uppercase; letter-spacing: .28em;
+            color: var(--engrave-dim); margin: 1.6rem 0 .7rem;
         }
 
-        /* Metric cards — styles the markup generated by pluginproof/report.py:
+        /* metric channels — styles the markup generated by pluginproof/report.py:
            .metric-card > .metric-name / .metric-values (.metric-baseline,
            .metric-arrow, .metric-current) / .metric-delta / .metric-status */
         .metric-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 12px;
         }
-
         .metric-card {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: border-color 0.3s ease;
+            border-radius: 5px;
+            padding: 1rem 1.15rem;
+            background: radial-gradient(140% 160% at 50% 0%, #0b120c 0%, var(--glass) 65%);
+            box-shadow: 0 3px 10px rgba(0,0,0,.55) inset, 0 1px 0 rgba(255,255,255,.04);
+            position: relative; overflow: hidden;
         }
-
-        .metric-card:hover {
-            border-color: var(--text-secondary);
+        .metric-card::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,.20) 0 1px, transparent 1px 3px);
         }
-
+        .metric-card > * { position: relative; z-index: 1; }
         .metric-name {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: 0.6rem;
+            font-family: var(--font-mono); font-size: .68rem;
+            text-transform: uppercase; letter-spacing: .18em;
+            color: var(--phos-dim); margin-bottom: .55rem;
         }
-
         .metric-values {
-            font-family: var(--font-mono);
-            font-size: 1.3rem;
-            font-weight: 700;
+            font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--phos); text-shadow: 0 0 6px rgba(62,242,155,.4);
         }
-
-        .metric-baseline { color: var(--text-secondary); }
-        .metric-arrow { color: var(--text-secondary); padding: 0 0.35rem; font-weight: 400; }
-        .metric-current { color: var(--text-primary); }
-
+        .metric-baseline { color: var(--phos-dim); text-shadow: none; }
+        .metric-arrow { color: var(--phos-dim); padding: 0 .3rem; font-weight: 400; text-shadow: none; }
         .metric-delta {
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+            font-family: var(--font-mono); font-size: .82rem; margin-top: .45rem;
+            font-variant-numeric: tabular-nums;
         }
-        .metric-delta small { color: var(--text-secondary); font-weight: 400; }
-
+        .metric-delta small { color: var(--engrave-dim); font-weight: 400; }
         .metric-status {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            margin-top: 0.55rem;
-            text-shadow: 0 0 10px currentColor;
+            font-family: var(--font-mono); font-size: .66rem; font-weight: 700;
+            letter-spacing: .3em; margin-top: .5rem;
+            text-shadow: 0 0 9px currentColor;
         }
 
-        /* Spectra — styles figure.spectrum generated by report.py */
-        .spectra {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
+        /* spectra — bezel + glass around report.py's figure.spectrum */
+        .spectra { display: flex; flex-direction: column; gap: 14px; }
         figure.spectrum {
-            background-color: #0A0C10;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
-            position: relative;
+            border-radius: 8px; padding: 10px;
+            background: linear-gradient(180deg, #0e1113, #181c1f);
+            box-shadow: 0 1px 0 rgba(255,255,255,.05), 0 3px 10px rgba(0,0,0,.55) inset;
+        }
+        figure.spectrum img {
+            width: 100%; height: auto; display: block; border-radius: 5px;
+        }
+        figure.spectrum figcaption {
+            font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--engrave-dim); margin-top: .55rem;
+            padding-left: 2px;
+        }
+
+        /* diagnosis — terminal readout on glass */
+        .diagnosis-panel {
+            border-radius: 8px; padding: 10px;
+            background: linear-gradient(180deg, #0e1113, #181c1f);
+            box-shadow: 0 1px 0 rgba(255,255,255,.05), 0 3px 10px rgba(0,0,0,.55) inset;
+        }
+        .diagnosis-inner {
+            position: relative; border-radius: 5px; padding: 1.1rem 1.3rem;
+            background: radial-gradient(140% 160% at 50% 0%, #0b120c 0%, var(--glass) 65%);
             overflow: hidden;
         }
-
-        figure.spectrum::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image:
-                linear-gradient(rgba(0, 255, 157, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 157, 0.05) 1px, transparent 1px);
-            background-size: 10% 25%;
-            z-index: 0;
-            pointer-events: none;
+        .diagnosis-inner::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,.20) 0 1px, transparent 1px 3px);
         }
-
-        figure.spectrum img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        figure.spectrum figcaption {
-            font-family: var(--font-mono);
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-top: 0.6rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Diagnosis Panel */
-        .diagnosis-panel {
-            background-color: var(--bg-surface);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            border-left: 4px solid var(--accent);
-        }
-
+        .diagnosis-inner > * { position: relative; z-index: 1; }
         .diagnosis-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            color: var(--text-secondary);
+            font-family: var(--font-mono); font-size: .68rem;
+            letter-spacing: .24em; text-transform: uppercase;
+            color: var(--phos-dim); margin-bottom: .7rem;
+            padding-bottom: .6rem; border-bottom: 1px dashed rgba(62,242,155,.25);
         }
-
-        .diagnosis-header svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
         .diagnosis-text {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: var(--text-primary);
+            font-family: var(--font-mono); font-size: .92rem; line-height: 1.75;
+            color: var(--phos); text-shadow: 0 0 6px rgba(62,242,155,.35);
         }
 
         footer.stamp {
-            font-family: var(--font-mono);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            margin-top: 2rem;
-            text-align: right;
+            font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em;
+            color: var(--engrave-dim); margin-top: 1.4rem; text-align: right;
         }
 
-        @media (max-width: 1024px) {
-            .metric-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 768px) {
-            .metric-grid { grid-template-columns: 1fr; }
-            .header-left { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-            .plugin-name { padding-left: 0; border-left: none; }
-        }
+        @media (max-width: 900px)  { .metric-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 640px)  { .metric-grid { grid-template-columns: 1fr; }
+                                     .verdict-badge { margin-left: 0; } }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="header-left">
-                <div class="logo">
-                    <svg viewBox="0 0 512 512">
-                        <rect width="512" height="512" fill="#0F1115" rx="64"/>
-                        <path d="M 256, 40 C 256, 40 400, 80 400, 200 C 400, 360 256, 460 256, 460 C 256, 460 112, 360 112, 200 C 112, 80 256, 40 256, 40 Z" fill="none" stroke="#2A303A" stroke-width="12" stroke-linejoin="round"/>
-                        <rect x="170" y="240" width="16" height="80" rx="8" fill="#00FF9D" />
-                        <rect x="210" y="200" width="16" height="120" rx="8" fill="#00FF9D" />
-                        <rect x="250" y="140" width="16" height="180" rx="8" fill="#00FF9D" />
-                        <path d="M 280, 260 L 310, 290 L 360, 180" fill="none" stroke="#00FF9D" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <span class="wordmark">PluginProof</span>
-                </div>
-                <div class="plugin-name">Target: {{plugin_name}}</div>
+            <div class="logo">
+                <svg viewBox="0 0 512 512">
+                    <rect width="512" height="512" fill="#0F1115" rx="64"/>
+                    <path d="M 256, 40 C 256, 40 400, 80 400, 200 C 400, 360 256, 460 256, 460 C 256, 460 112, 360 112, 200 C 112, 80 256, 40 256, 40 Z" fill="none" stroke="#2A303A" stroke-width="12" stroke-linejoin="round"/>
+                    <rect x="170" y="240" width="16" height="80" rx="8" fill="#00FF9D" />
+                    <rect x="210" y="200" width="16" height="120" rx="8" fill="#00FF9D" />
+                    <rect x="250" y="140" width="16" height="180" rx="8" fill="#00FF9D" />
+                    <path d="M 280, 260 L 310, 290 L 360, 180" fill="none" stroke="#00FF9D" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="wordmark">Plugin<b>Proof</b></span>
             </div>
-            <div class="verdict-badge badge-{{overall_status_class}}">
-                {{overall_status}}
-            </div>
+            <div class="plugin-name">DUT: {{plugin_name}}</div>
+            <div class="verdict-badge badge-{{overall_status_class}}">{{overall_status}}</div>
         </header>
 
         <h2 class="section">Metrics</h2>
@@ -303,19 +221,15 @@
 {{spectra}}
         </div>
 
+        <h2 class="section">Diagnosis</h2>
         <div class="diagnosis-panel">
-            <div class="diagnosis-header">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                <span>AI Diagnosis &mdash; {{diagnosis_engine}}</span>
-            </div>
-            <div class="diagnosis-text">
-                {{diagnosis}}
+            <div class="diagnosis-inner">
+                <div class="diagnosis-header">AI Diagnosis &mdash; {{diagnosis_engine}}</div>
+                <div class="diagnosis-text">{{diagnosis}}</div>
             </div>
         </div>
 
-        <footer class="stamp">generated {{timestamp}} &middot; pluginproof</footer>
+        <footer class="stamp">PLUGINPROOF PP-01 &middot; generated {{timestamp}}</footer>
     </div>
 </body>
 </html>
