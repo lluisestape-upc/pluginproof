@@ -1,6 +1,6 @@
 # PluginProof — demo video script (<3 min, natural voice)
 
-> Spoken first-person. Short sentences, easy to say out loud. Total ~2:35.
+> Spoken first-person. Short sentences, easy to say out loud. Total ~2:50 — keep the pace up.
 > Rules require the audio to cover how you used Codex AND GPT-5.6 — covered in the last section.
 
 ## 0:00–0:20 — Intro (title card, then your face or the app)
@@ -12,18 +12,30 @@ I make audio plugins myself. And the truth is, we all test them the same way: by
 The problem? Ears don't diff. You refactor something, it compiles, it sounds fine...
 and you just shipped aliasing to everyone. There's no pytest for sound. So I built one."
 
-## 0:20–0:50 — Golden baseline (screen: the app)
+## 0:20–1:05 — Measure the healthy plugin + golden (screen: the app)
 
-*Drag the healthy MegaCrusher.vst3 onto the screen. Measurement runs. Press SET GOLDEN.*
+*Drag the healthy MegaCrusher.vst3 onto the screen. Measurement runs. Press SET GOLDEN
+and then CHECK right away — the report that appears is the full clean measurement
+(all values, all green, deltas zero). Narrate over the report; scroll through it.*
 
-"This is PluginProof. I drop in my plugin — this is MegaCrusher, a distortion I actually
-ship — and it measures it like a lab instrument. Frequency response, distortion,
-aliasing, stability. Through the real VST3 binary, not a simulation.
+"Once we load the app, we can just drop in our VST3 plugin — this is MegaCrusher, a
+distortion plugin I actually ship. PluginProof runs a full measurement suite through
+the real plugin binary, like a lab instrument. And once it's tested, we can check the
+results.
 
-Then I hit Set Golden. That's the reference — this is how my plugin is supposed to
-sound. Frozen."
+Four benchmarks. Frequency response — is the tone shaping still the same. THD plus
+noise — how much distortion it adds, and whether that changed. Aliasing — digital
+artifacts from bad resampling, the stuff you feel before you hear it. And stability —
+NaNs and denormals, the numerical bugs that eat your CPU.
 
-## 0:50–1:15 — The bug (screen: the code diff)
+*(scroll to the spectra)* These graphs are the plugin's spectral fingerprint: the
+frequency sweep, and the response to a high tone near Nyquist.
+
+We can see this plugin passes all the benchmarks. So I set this as the golden standard
+— from now on, whenever I change anything in this plugin, I can always compare it
+against the original, fully working one."
+
+## 1:05–1:30 — The bug (screen: the code diff)
 
 *Show the 3-line diff in the editor.*
 
@@ -36,7 +48,7 @@ Let's pretend I never noticed."
 
 *(Off camera: copy the buggy .vst3 over the same file.)*
 
-## 1:15–1:55 — The catch (screen: the app — money shot)
+## 1:30–2:10 — The catch (screen: the app — money shot)
 
 *Press CHECK. Live re-measure. FAIL screen: red LED, three failed metrics, spectrum
 overlay, AI diagnosis panel.*
@@ -51,13 +63,13 @@ engine. But it's bring-your-own-key: you can plug in Anthropic, or — like I'm 
 right now — run it completely local and free with Ollama. And the report always tells
 you honestly which engine you're reading."
 
-## 1:55–2:15 — CI gate (screen: GitHub PR with the red X)
+## 2:10–2:30 — CI gate (screen: GitHub PR with the red X)
 
 "Same check, headless, with exit codes. So it runs in CI: this pull request is blocked
 because the sound regressed — nobody had to listen to anything. And because the whole
 pipeline is deterministic, an unchanged plugin diffs to exactly zero. No flaky tests."
 
-## 2:15–2:35 — How I built it + outro (outro card)
+## 2:30–2:50 — How I built it + outro (outro card)
 
 "I built the core of PluginProof in a Codex session with GPT-5.6 — the desktop app, the
 plugin host, the AI layer, the packaging, the CI. Codex even debugged a drag-and-drop
@@ -70,7 +82,7 @@ description. Thanks for watching."
 ---
 
 ### Shot checklist
-- [ ] App: drop healthy plugin → SET GOLDEN
+- [ ] App: drop healthy plugin → SET GOLDEN + CHECK together → narrate over the clean PASS report
 - [ ] Editor: the 3-line "branchless" diff (branch `demo-bug`)
 - [ ] Swap buggy .vst3 off camera · ⚙ set provider to Ollama BEFORE recording
 - [ ] App: CHECK → FAIL report with AI diagnosis
