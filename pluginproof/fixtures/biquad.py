@@ -24,9 +24,10 @@ def _rbj_lowpass_coeffs(cutoff_hz: float, q: float, samplerate: int) -> tuple[np
     alpha = np.sin(w0) / (2.0 * max(float(q), 1e-3))
     cosw0 = np.cos(w0)
 
-    b0 = (1.0 - cosw0) / 2.0
-    b1 = 1.0 - cosw0
-    b2 = (1.0 - cosw0) / 2.0
+    half = (1.0 - cosw0) / 2.0
+    b0 = half
+    b1 = half
+    b2 = half
     a0 = 1.0 + alpha
     a1 = -2.0 * cosw0
     a2 = 1.0 - alpha
