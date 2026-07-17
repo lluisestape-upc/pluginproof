@@ -1,69 +1,79 @@
-# PluginProof — demo video script (<3 min)
+# PluginProof — demo video script (<3 min, natural voice)
 
-> Screen recording + voiceover. Segments timed to total ~2:40, leaving buffer under 3:00.
-> Required by rules: audio must cover **how you used Codex AND GPT-5.6**.
+> Spoken first-person. Short sentences, easy to say out loud. Total ~2:35.
+> Rules require the audio to cover how you used Codex AND GPT-5.6 — covered in the last section.
 
-## 0:00–0:15 — Hook (title card from assets/video_assets.html)
+## 0:00–0:20 — Intro (title card, then your face or the app)
 
-**VO:** "Audio plugin developers test releases *by ear*. One refactor can quietly add
-aliasing or distortion that no unit test will ever catch — because there's no pytest for
-sound. I built one. This is PluginProof."
+"Hi, I'm Lluís Estapé, and I built PluginProof — an app that catches audio bugs in
+music plugins before your users hear them.
 
-## 0:15–0:45 — The app + golden baseline (screen: PluginProof.exe)
+I make audio plugins myself. And the truth is, we all test them the same way: by ear.
+The problem? Ears don't diff. You refactor something, it compiles, it sounds fine...
+and you just shipped aliasing to everyone. There's no pytest for sound. So I built one."
 
-*Open PluginProof.exe. Drag MegaCrusher.vst3 (healthy) onto the CRT screen. Measurement
-runs. Press SET GOLDEN.*
+## 0:20–0:50 — Golden baseline (screen: the app)
 
-**VO:** "PluginProof measures a plugin like a lab instrument: frequency response, THD,
-aliasing, and numerical stability — through the real VST3 binary. One click snapshots a
-golden baseline of how my plugin is *supposed* to sound. This is MegaCrusher, a
-distortion plugin I ship."
+*Drag the healthy MegaCrusher.vst3 onto the screen. Measurement runs. Press SET GOLDEN.*
 
-## 0:45–1:10 — The bug (screen: VS Code / Visual Studio diff)
+"This is PluginProof. I drop in my plugin — this is MegaCrusher, a distortion I actually
+ship — and it measures it like a lab instrument. Frequency response, distortion,
+aliasing, stability. Through the real VST3 binary, not a simulation.
 
-*Show the 3-line diff: bit crusher "branchless" refactor.*
+Then I hit Set Golden. That's the reference — this is how my plugin is supposed to
+sound. Frozen."
 
-**VO:** "Now the villain. This refactor makes the bit crusher branchless — it compiles,
-the diff looks like a cleanup, and code review would wave it through. But simplifying
-the expression inverted the depth mapping. The plugin now quantizes everything to four
-levels at default settings. Let's pretend I never noticed."
+## 0:50–1:15 — The bug (screen: the code diff)
 
-*(Off camera: copy MegaCrusher_buggy.vst3 over the installed plugin.)*
+*Show the 3-line diff in the editor.*
 
-## 1:10–1:50 — The catch (screen: app, the money shot)
+"Now let me break it — the realistic way. Here's a refactor I might do on a Friday:
+make the bit crusher branchless. Looks clean, right? Code review would approve this.
 
-*Press CHECK. Re-measure runs live. FAIL screen: red LED, triple FAIL cards, spectrum
-overlay showing the divergence, AI diagnosis panel.*
+Except... simplifying that expression flipped the parameter mapping. The plugin now
+crushes everything to four levels — even with the knob at zero. It compiles perfectly.
+Let's pretend I never noticed."
 
-**VO:** "I rebuild, and hit Check. PluginProof re-measures the plugin from disk and
-diffs it against the golden: frequency response off by 43 dB, distortion up 19,
-aliasing up 19. And this panel is the part I love — the metric diffs go to an AI that
-answers like a DSP engineer. It ships with GPT-5.6 as the default engine; it also takes
-an Anthropic key, or — like right now — runs fully local and free on Ollama. The report
-always says which engine you're reading."
+*(Off camera: copy the buggy .vst3 over the same file.)*
 
-## 1:50–2:15 — CI gate (screen: GitHub PR with failed check)
+## 1:15–1:55 — The catch (screen: the app — money shot)
 
-*Show the GitHub Actions run failing on a PR / the workflow file.*
+*Press CHECK. Live re-measure. FAIL screen: red LED, three failed metrics, spectrum
+overlay, AI diagnosis panel.*
 
-**VO:** "The same check runs headless with exit codes, so it's a CI gate: this pull
-request is blocked because the audio regressed — no human listening required. Golden
-baselines are deterministic, so an unchanged plugin diffs to exactly zero. Zero flaky CI."
+"I rebuild, and I just hit Check. PluginProof measures the plugin again and compares it
+to the golden... and there it is. Frequency response off by forty-three dB. Distortion
+up nineteen. Aliasing up nineteen. Caught.
 
-## 2:15–2:40 — How it was built + outro (outro card)
+And this panel is my favorite part. The numbers go to an AI that answers like a DSP
+engineer — what probably broke, and where to look. It ships with GPT-5.6 as the default
+engine. But it's bring-your-own-key: you can plug in Anthropic, or — like I'm doing
+right now — run it completely local and free with Ollama. And the report always tells
+you honestly which engine you're reading."
 
-**VO:** "The core of PluginProof was built in a Codex session with GPT-5.6: the desktop
-app, the VST3 host hardening, the multi-provider AI layer, the packaging, and the CI
-gate — Codex even root-caused a pywebview drag-and-drop quirk from the library source.
-And GPT-5.6 lives on inside the product as the default diagnosis engine. PluginProof:
-catch audio bugs before your users do. Repo and Windows exe in the description."
+## 1:55–2:15 — CI gate (screen: GitHub PR with the red X)
+
+"Same check, headless, with exit codes. So it runs in CI: this pull request is blocked
+because the sound regressed — nobody had to listen to anything. And because the whole
+pipeline is deterministic, an unchanged plugin diffs to exactly zero. No flaky tests."
+
+## 2:15–2:35 — How I built it + outro (outro card)
+
+"I built the core of PluginProof in a Codex session with GPT-5.6 — the desktop app, the
+plugin host, the AI layer, the packaging, the CI. Codex even debugged a drag-and-drop
+quirk by reading the library's source code. And GPT-5.6 stays in the product, as the
+default diagnosis engine.
+
+PluginProof. Catch audio bugs before your users do. Repo and Windows app in the
+description. Thanks for watching."
 
 ---
 
 ### Shot checklist
-- [ ] PluginProof.exe launch → drop → SET GOLDEN (healthy plugin installed)
-- [ ] Diff of the bug in the editor (branch `demo-bug` of MegaCrusher)
-- [ ] Swap in buggy .vst3 (off camera), CHECK → FAIL report (Ollama provider set in ⚙)
-- [ ] GitHub Actions failing run screenshot/tab
-- [ ] Title card + outro card from assets/video_assets.html
-- [ ] YouTube: public, title "PluginProof — regression testing for audio plugins (OpenAI Build Week)", repo link in description
+- [ ] App: drop healthy plugin → SET GOLDEN
+- [ ] Editor: the 3-line "branchless" diff (branch `demo-bug`)
+- [ ] Swap buggy .vst3 off camera · ⚙ set provider to Ollama BEFORE recording
+- [ ] App: CHECK → FAIL report with AI diagnosis
+- [ ] GitHub: failed Action on the PR
+- [ ] Title + outro cards from assets/video_assets.html
+- [ ] YouTube: public · repo link in description · under 3:00
